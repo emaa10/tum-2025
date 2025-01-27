@@ -30,4 +30,5 @@ jobs:
 
       # Build the Project
       - name: Build Project
+        working-directory: Motor-Testing
         run: platformio run
