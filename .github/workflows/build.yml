@@ -31,9 +31,6 @@ jobs:
       - name: List files
         run: ls -la
 
-      - name: List files in Motor-Testing
-        run: ls -la ./Motor-Testing
-
 
 
       # Build the Project
