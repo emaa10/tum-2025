@@ -1,9 +1,9 @@
-name: Motor_Testing
+name: Build PlatformIO Project
 
 on:
   push:
     branches:
-      - main 
+      - main
   pull_request:
     branches:
       - main
@@ -16,24 +16,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
-      # Install PlatformIO
       - name: Install PlatformIO
         run: |
           python -m pip install --upgrade pip
           pip install platformio
 
-      - name: List files
-        run: ls -la
-
-
-
-      # Build the Project
       - name: Build Project
-        working-directory: Motor-Testing
         run: platformio run
+        working-directory: ./Motor_Testing
