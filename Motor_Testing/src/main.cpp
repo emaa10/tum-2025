@@ -29,7 +29,7 @@
 const uint8_t Motor_links = 2;
 const uint8_t Motor_rechts = 1;
 
-const float DXL_PROTOCOL_VERSION = 1.0;
+const float DXL_PROTOCOL_VERSION = 1.0; //Wichtig, nicht 2.0
 
 DynamixelShield dxl;
 
@@ -37,10 +37,9 @@ DynamixelShield dxl;
 using namespace ControlTableItem;
 
 void setup() {
-  // put your setup code here, to run once:
   
   // For Uno, Nano, Mini, and Mega, use UART port of DYNAMIXEL Shield to debug.
-  DEBUG_SERIAL.begin(19200);
+  DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
 
   // Set Port baudrate to 57600bps. This has to match with DYNAMIXEL baudrate.
   dxl.begin(1000000);
@@ -66,6 +65,7 @@ int Motorlinks_Geschw = 100;   //Variable für lesen aktuelle RPM Motor links
 int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
 
 void loop() {
+    //bloß zum testen, hat noch nen schlaffen
     dxl.setGoalVelocity(Motor_links, -80, UNIT_PERCENT);
     dxl.setGoalVelocity(Motor_rechts, 20, UNIT_PERCENT);
     delay(550);
