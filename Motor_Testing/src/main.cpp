@@ -26,8 +26,10 @@
   #define DEBUG_SERIAL Serial
 #endif
 
-const uint8_t DXL_ID = 1;
-const float DXL_PROTOCOL_VERSION = 2.0;
+const uint8_t Motor_links = 2;
+const uint8_t Motor_rechts = 1;
+
+const float DXL_PROTOCOL_VERSION = 1.0;
 
 DynamixelShield dxl;
 
@@ -38,38 +40,33 @@ void setup() {
   // put your setup code here, to run once:
   
   // For Uno, Nano, Mini, and Mega, use UART port of DYNAMIXEL Shield to debug.
-  DEBUG_SERIAL.begin(115200);
+  DEBUG_SERIAL.begin(19200);
 
   // Set Port baudrate to 57600bps. This has to match with DYNAMIXEL baudrate.
-  dxl.begin(57600);
+  dxl.begin(1000000);
   // Set Port Protocol Version. This has to match with DYNAMIXEL protocol version.
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
   // Get DYNAMIXEL information
-  dxl.ping(DXL_ID);
+  dxl.ping(Motor_links);
+  dxl.ping(Motor_rechts);
 
   // Turn off torque when configuring items in EEPROM area
-  dxl.torqueOff(DXL_ID);
-  dxl.setOperatingMode(DXL_ID, OP_POSITION);
-  dxl.torqueOn(DXL_ID);
+  dxl.torqueOff(Motor_links);
+  dxl.torqueOff(Motor_rechts);
+  dxl.setOperatingMode(Motor_links, OP_VELOCITY);
+  dxl.setOperatingMode(Motor_rechts, OP_VELOCITY);
+  dxl.torqueOn(Motor_links);
+  dxl.torqueOn(Motor_rechts);
 }
+float stop = -100;
+float msl = -15.0;  //max speed links
+float msr = 85.0;   //max speed rechts
+
+int Motorlinks_Geschw = 100;   //Variable für lesen aktuelle RPM Motor links
+int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  
-  // Please refer to e-Manual(http://emanual.robotis.com/docs/en/parts/interface/dynamixel_shield/) for available range of value. 
-  // Set Goal Position in RAW value
-  dxl.setGoalPosition(DXL_ID, 512);
-  delay(1000);
-  // Print present position in raw value
-  DEBUG_SERIAL.print("Present Position(raw) : ");
-  DEBUG_SERIAL.println(dxl.getPresentPosition(DXL_ID));
-  delay(1000);
-
-  // Set Goal Position in DEGREE value
-  dxl.setGoalPosition(DXL_ID, 5.7, UNIT_DEGREE);
-  delay(1000);
-  // Print present position in degree value
-  DEBUG_SERIAL.print("Present Position(degree) : ");
-  DEBUG_SERIAL.println(dxl.getPresentPosition(DXL_ID, UNIT_DEGREE));
-  delay(1000);
+    dxl.setGoalVelocity(Motor_links, -80, UNIT_PERCENT);
+    dxl.setGoalVelocity(Motor_rechts, 20, UNIT_PERCENT);
+    delay(550);
 }
