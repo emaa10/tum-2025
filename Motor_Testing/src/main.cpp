@@ -66,8 +66,8 @@ int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
 
 void loop() {
     //bloß zum testen, hat noch nen schlaffen
-    dxl.setGoalVelocity(Motor_links, -1, UNIT_PERCENT);
-    dxl.setGoalVelocity(Motor_rechts, 99, UNIT_PERCENT);
+    dxl.setGoalVelocity(Motor_links, -50, UNIT_PERCENT);
+    dxl.setGoalVelocity(Motor_rechts, 50, UNIT_PERCENT);
     Motorlinks_Geschw = dxl.getPresentVelocity(2);  //Übergebe derzeitige Drehzahl als Raw Wert dxl.getPresentVelocity(Motor_ID , Einheit) => Einheit: keine Eingabe=RAW | UNIT_RPM=Drehzahl pro Min | UNIT_PERCENT =%
     Motorrechts_Geschw = dxl.getPresentVelocity(1);
 
