@@ -79,8 +79,13 @@ void motorController(double Speed, Motor motorlocation) {
     dxl.setGoalVelocity(Motor_links, Speed, UNIT_PERCENT);
     break;
   case Motor_Rechts:
-    double correctedSpeed; 
-    correctedSpeed = (100 - Speed) * -1; //greislig ich weiß
+    double correctedSpeed = 0;
+    if (Speed < 0){
+      correctedSpeed = 100 - Speed; //greislig ich weiß
+    }
+    else {
+      correctedSpeed = (100 - Speed) * -1; //greislig ich weiß
+    }
     dxl.setGoalVelocity(Motor_rechts, correctedSpeed, UNIT_PERCENT);
     break;
   case check:
@@ -94,13 +99,17 @@ void motorController(double Speed, Motor motorlocation) {
 }
 
 void loop() {
- for (int i = 0; i < 80; i++)
- {
-  motorController(i, Motor_Links);
-  motorController(i, Motor_Rechts);
-  delay(10);
- }
- 
+  for (int i = 0; i < 100; i++)
+  {
+    motorController(i, Motor_Links);
+    motorController(i, Motor_Rechts);
+    delay(100);
+  }
+  for (int i = 0; i < 50; i++)
+  {
+    motorController(NULL, check);
+    delay(10);
+  }
 
   while(true){yield();}
     
