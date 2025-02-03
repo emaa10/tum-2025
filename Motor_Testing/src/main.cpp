@@ -17,9 +17,10 @@
 #include <DynamixelShield.h>
 #include <Arduino.h>
 
-enum class Motor {
+enum Motor {
   Motor_Links,
   Motor_Rechts,
+  check,
 };
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
@@ -74,25 +75,34 @@ int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
 void motorController(double Speed, Motor motorlocation) {
   switch (motorlocation)
   {
-  case Motor::Motor_Links:
-    dxl.setGoalVelocity(Motor_links, Speed, UNIT_RPM);
+  case Motor_Links:
+    dxl.setGoalVelocity(Motor_links, Speed, UNIT_PERCENT);
     break;
-  case Motor::Motor_Rechts:
-    dxl.setGoalVelocity(Motor_rechts, Speed, UNIT_RPM);
+  case Motor_Rechts:
+    double correctedSpeed; 
+    correctedSpeed = (100 - Speed) * -1; //greislig ich weiß
+    dxl.setGoalVelocity(Motor_rechts, correctedSpeed, UNIT_PERCENT);
     break;
-  default:
-    DEBUG_SERIAL.println("Ungültiger Motor");
+  case check:
+    //Control loop
+    Motorlinks_Geschw = dxl.getPresentVelocity(1);
+    Motorrechts_Geschw = dxl.getPresentVelocity(2);
+    dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_RPM);
+    dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_RPM);
     break;
   }
 }
 
 void loop() {
-    //bloß zum testen, hat noch nen schlaffen
-    dxl.torqueOn(Motor_links);
-    dxl.torqueOn(Motor_rechts);
-    dxl.setGoalVelocity(Motor_links, 100, UNIT_PERCENT);
-    dxl.setGoalVelocity(Motor_rechts, -0, UNIT_PERCENT);
-    while(true){yield();}
+ for (int i = 0; i < 80; i++)
+ {
+  motorController(i, Motor_Links);
+  motorController(i, Motor_Rechts);
+  delay(10);
+ }
+ 
+
+  while(true){yield();}
     
-    delay(550);
+  delay(550);
 }
