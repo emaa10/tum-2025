@@ -76,7 +76,14 @@ void motorController(double Speed, Motor motorlocation) {
   switch (motorlocation)
   {
   case Motor_Links:
-    dxl.setGoalVelocity(Motor_links, Speed, UNIT_PERCENT);
+    double correctedSpeed = 0;
+    if (Speed > 0){
+      correctedSpeed = 100 - Speed; //greislig ich weiß
+    }
+    else {
+      correctedSpeed = (100 - Speed) * -1; //greislig ich weiß
+    }
+    dxl.setGoalVelocity(Motor_links, correctedSpeed, UNIT_PERCENT);
     break;
   case Motor_Rechts:
     double correctedSpeed = 0;
