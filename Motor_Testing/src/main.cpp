@@ -1,27 +1,19 @@
-/*******************************************************************************
-* Copyright 2016 ROBOTIS CO., LTD.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
-
 #include <DynamixelShield.h>
 #include <Arduino.h>
+#include <VL53L0X.h>
+#include <Wire.h>
+
+VL53L0X sensor1;
+VL53L0X sensor2;
 
 enum Motor {
   Motor_Links,
   Motor_Rechts,
   check,
 };
+
+#define XSHUT_FRONT 1
+#define XSHUT_BACK 2
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
   #include <SoftwareSerial.h>
@@ -63,6 +55,14 @@ void setup() {
   dxl.setOperatingMode(Motor_rechts, OP_VELOCITY);
   dxl.torqueOn(Motor_links);
   dxl.torqueOn(Motor_rechts);
+  //Sensors Start:
+  pinMode(XSHUT_FRONT, OUTPUT);
+  pinMode(XSHUT_BACK, OUTPUT);
+  digitalWrite(XSHUT_BACK, LOW);
+  digitalWrite(XSHUT_BACK, HIGH);
+  delay(10);
+  sensor2.setAddress(0x30);
+  sensor2.startContinuous();
 }
 float stop = -100;
 float msl = -15.0;  //max speed links
@@ -73,10 +73,10 @@ int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
 
 
 void motorController(double Speed, Motor motorlocation) {
+  double correctedSpeed = 0;
   switch (motorlocation)
   {
   case Motor_Links:
-    double correctedSpeed = 0;
     if (Speed > 0){
       correctedSpeed = 100 - Speed; //greislig ich weiß
     }
@@ -86,7 +86,6 @@ void motorController(double Speed, Motor motorlocation) {
     dxl.setGoalVelocity(Motor_links, correctedSpeed, UNIT_PERCENT);
     break;
   case Motor_Rechts:
-    double correctedSpeed = 0;
     if (Speed < 0){
       correctedSpeed = 100 - Speed; //greislig ich weiß
     }
