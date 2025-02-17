@@ -39,6 +39,17 @@ void setup() {
   
   // For Uno, Nano, Mini, and Mega, use UART port of DYNAMIXEL Shield to debug.
   DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
+  Wire.begin();
+
+    // tof
+    if (!sensor1.init()) {
+      Serial.println("tof nciht gefunden");
+      while (1);
+  }
+  sensor1.setTimeout(500);
+  sensor1.startContinuous();
+  DEBUG_SERIAL.println("tof initialisiert");
+
 
   // Set Port baudrate to 57600bps. This has to match with DYNAMIXEL baudrate.
   dxl.begin(1000000);
@@ -71,6 +82,16 @@ float msr = 85.0;   //max speed rechts
 int Motorlinks_Geschw = 100;   //Variable für lesen aktuelle RPM Motor links
 int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
 
+// returns distance in mm, or -1 if timeout
+int getDistance(VL53L0X sensor) {
+  int distance = sensor.readRangeContinuousMillimeters();
+
+  if (sensor.timeoutOccurred()) {
+    return -1;
+  } else {
+    return distance;
+  }
+}
 
 void motorController(double Speed, Motor motorlocation) {
   double correctedSpeed = 0;
@@ -109,11 +130,12 @@ void loop() {
   {
     motorController(i, Motor_Links);
     motorController(i, Motor_Rechts);
+    DEBUG_SERIAL.println(getDistance(sensor1));
     delay(100);
   }
   for (int i = 0; i < 50; i++)
   {
-    motorController(NULL, check);
+    motorController(0, check);
     delay(10);
   }
 
