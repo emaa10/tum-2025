@@ -41,15 +41,15 @@ void setup() {
   
   // For Uno, Nano, Mini, and Mega, use UART port of DYNAMIXEL Shield to debug.
   DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
-  /*Wire.begin();
+  Wire.begin();
 
     // tof
     if (!sensor1.init()) {
       Serial.println("tof nciht gefunden");
       while (1);
-  }*/
-  /*sensor1.setTimeout(500);
-  sensor1.startContinuous();*/
+  }
+  sensor1.setTimeout(500);
+  sensor1.startContinuous();
   DEBUG_SERIAL.println("tof initialisiert");
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -128,7 +128,7 @@ void motorController(double Speed, Motor motorlocation) {
 }
 
 void loop() {
-  /*if(getDistance() <= 200) {
+  if(getDistance() <= 200) {
     digitalWrite(LED_BUILTIN, HIGH);
   }
   else {
@@ -136,9 +136,9 @@ void loop() {
   }
   yield();
   Serial.println(getDistance());
-  delay(50);*/
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(100);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(100);
+  delay(50);
+  // digitalWrite(LED_BUILTIN, HIGH);
+  // delay(100);
+  // digitalWrite(LED_BUILTIN, LOW);
+  // delay(100);
 }
