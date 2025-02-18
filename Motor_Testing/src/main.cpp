@@ -130,7 +130,11 @@ void loop() {
   {
     motorController(i, Motor_Links);
     motorController(i, Motor_Rechts);
-    DEBUG_SERIAL.println(getDistance(sensor1));
+    if(getDistance(sensor1) >= 100) {
+      digitalWrite(LED_BUILTIN, HIGH);
+    } else{
+      digitalWrite(LED_BUILTIN, LOW);
+    }
     delay(100);
   }
   for (int i = 0; i < 50; i++)
