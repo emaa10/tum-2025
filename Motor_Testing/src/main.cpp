@@ -14,7 +14,7 @@ enum Motor {
 
 #define XSHUT_FRONT 1
 #define XSHUT_BACK 2
-#define LED_BUILTIN 13
+//#define LED_BUILTIN 13
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
   #include <SoftwareSerial.h>
@@ -37,18 +37,19 @@ DynamixelShield dxl;
 using namespace ControlTableItem;
 
 void setup() {
+
   
   // For Uno, Nano, Mini, and Mega, use UART port of DYNAMIXEL Shield to debug.
   DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
-  Wire.begin();
+  /*Wire.begin();
 
     // tof
     if (!sensor1.init()) {
       Serial.println("tof nciht gefunden");
       while (1);
-  }
-  sensor1.setTimeout(500);
-  sensor1.startContinuous();
+  }*/
+  /*sensor1.setTimeout(500);
+  sensor1.startContinuous();*/
   DEBUG_SERIAL.println("tof initialisiert");
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -69,13 +70,13 @@ void setup() {
   dxl.torqueOn(Motor_links);
   dxl.torqueOn(Motor_rechts);
   //Sensors Start:
-  pinMode(XSHUT_FRONT, OUTPUT);
+  /*pinMode(XSHUT_FRONT, OUTPUT);
   pinMode(XSHUT_BACK, OUTPUT);
   digitalWrite(XSHUT_BACK, LOW);
   digitalWrite(XSHUT_BACK, HIGH);
   delay(10);
   sensor2.setAddress(0x30);
-  sensor2.startContinuous();
+  sensor2.startContinuous();*/
 }
 float stop = -100;
 float msl = -15.0;  //max speed links
@@ -127,12 +128,17 @@ void motorController(double Speed, Motor motorlocation) {
 }
 
 void loop() {
-  if(getDistance() <= 200) {
+  /*if(getDistance() <= 200) {
     digitalWrite(LED_BUILTIN, HIGH);
   }
   else {
     digitalWrite(LED_BUILTIN, LOW);
   }
   yield();
-  delay(50);
+  Serial.println(getDistance());
+  delay(50);*/
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(100);
 }
