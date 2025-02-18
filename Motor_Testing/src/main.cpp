@@ -128,14 +128,9 @@ void motorController(double Speed, Motor motorlocation) {
 }
 
 void loop() {
-  if(getDistance() <= 200) {
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
-  else {
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-  yield();
-  Serial.println(getDistance());
+  motorController(200-getDistance(), Motor_Links);
+  motorController(100, Motor_Rechts);
+
   delay(50);
   // digitalWrite(LED_BUILTIN, HIGH);
   // delay(100);
