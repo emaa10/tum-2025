@@ -14,6 +14,7 @@ enum Motor {
 
 #define XSHUT_FRONT 1
 #define XSHUT_BACK 2
+#define LED_BUILTIN 13
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
   #include <SoftwareSerial.h>
@@ -49,6 +50,7 @@ void setup() {
   sensor1.setTimeout(500);
   sensor1.startContinuous();
   DEBUG_SERIAL.println("tof initialisiert");
+  pinMode(LED_BUILTIN, OUTPUT);
 
 
   // Set Port baudrate to 57600bps. This has to match with DYNAMIXEL baudrate.
@@ -83,10 +85,9 @@ int Motorlinks_Geschw = 100;   //Variable für lesen aktuelle RPM Motor links
 int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
 
 // returns distance in mm, or -1 if timeout
-int getDistance(VL53L0X sensor) {
-  int distance = sensor.readRangeContinuousMillimeters();
-
-  if (sensor.timeoutOccurred()) {
+unsigned long getDistance() {
+  unsigned long distance = sensor1.readRangeContinuousMillimeters();
+  if (sensor1.timeoutOccurred()) {
     return -1;
   } else {
     return distance;
@@ -126,20 +127,12 @@ void motorController(double Speed, Motor motorlocation) {
 }
 
 void loop() {
-  for (int i = 0; i < 100; i++)
-  {
-    motorController(i, Motor_Links);
-    motorController(i, Motor_Rechts);
-    DEBUG_SERIAL.println(getDistance(sensor1));
-    delay(100);
+  if(getDistance() <= 200) {
+    digitalWrite(LED_BUILTIN, HIGH);
   }
-  for (int i = 0; i < 50; i++)
-  {
-    motorController(0, check);
-    delay(10);
+  else {
+    digitalWrite(LED_BUILTIN, LOW);
   }
-
-  while(true){yield();}
-    
-  delay(550);
+  yield();
+  delay(50);
 }
