@@ -14,6 +14,7 @@ enum Motor {
 
 #define XSHUT_FRONT 1
 #define XSHUT_BACK 2
+//#define LED_BUILTIN 13
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
   #include <SoftwareSerial.h>
@@ -36,19 +37,21 @@ DynamixelShield dxl;
 using namespace ControlTableItem;
 
 void setup() {
+
   
   // For Uno, Nano, Mini, and Mega, use UART port of DYNAMIXEL Shield to debug.
   DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
-  Wire.begin();
+  /*Wire.begin();
 
     // tof
     if (!sensor1.init()) {
       Serial.println("tof nciht gefunden");
       while (1);
-  }
-  sensor1.setTimeout(500);
-  sensor1.startContinuous();
+  }*/
+  /*sensor1.setTimeout(500);
+  sensor1.startContinuous();*/
   DEBUG_SERIAL.println("tof initialisiert");
+  pinMode(LED_BUILTIN, OUTPUT);
 
 
   // Set Port baudrate to 57600bps. This has to match with DYNAMIXEL baudrate.
@@ -67,13 +70,13 @@ void setup() {
   dxl.torqueOn(Motor_links);
   dxl.torqueOn(Motor_rechts);
   //Sensors Start:
-  pinMode(XSHUT_FRONT, OUTPUT);
+  /*pinMode(XSHUT_FRONT, OUTPUT);
   pinMode(XSHUT_BACK, OUTPUT);
   digitalWrite(XSHUT_BACK, LOW);
   digitalWrite(XSHUT_BACK, HIGH);
   delay(10);
   sensor2.setAddress(0x30);
-  sensor2.startContinuous();
+  sensor2.startContinuous();*/
 }
 float stop = -100;
 float msl = -15.0;  //max speed links
@@ -83,10 +86,9 @@ int Motorlinks_Geschw = 100;   //Variable für lesen aktuelle RPM Motor links
 int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
 
 // returns distance in mm, or -1 if timeout
-int getDistance(VL53L0X sensor) {
-  int distance = sensor.readRangeContinuousMillimeters();
-
-  if (sensor.timeoutOccurred()) {
+unsigned long getDistance() {
+  unsigned long distance = sensor1.readRangeContinuousMillimeters();
+  if (sensor1.timeoutOccurred()) {
     return -1;
   } else {
     return distance;
@@ -126,24 +128,17 @@ void motorController(double Speed, Motor motorlocation) {
 }
 
 void loop() {
-  for (int i = 0; i < 100; i++)
-  {
-    motorController(i, Motor_Links);
-    motorController(i, Motor_Rechts);
-    if(getDistance(sensor1) >= 100) {
-      digitalWrite(LED_BUILTIN, HIGH);
-    } else{
-      digitalWrite(LED_BUILTIN, LOW);
-    }
-    delay(100);
+  /*if(getDistance() <= 200) {
+    digitalWrite(LED_BUILTIN, HIGH);
   }
-  for (int i = 0; i < 50; i++)
-  {
-    motorController(0, check);
-    delay(10);
+  else {
+    digitalWrite(LED_BUILTIN, LOW);
   }
-
-  while(true){yield();}
-    
-  delay(550);
+  yield();
+  Serial.println(getDistance());
+  delay(50);*/
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(100);
 }
