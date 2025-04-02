@@ -1,20 +1,27 @@
+/*******************************************************************************
+* Copyright 2016 ROBOTIS CO., LTD.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
 #include <DynamixelShield.h>
 #include <Arduino.h>
-#include <VL53L0X.h>
-#include <Wire.h>
-
-VL53L0X sensor1;
-VL53L0X sensor2;
 
 enum Motor {
   Motor_Links,
   Motor_Rechts,
   check,
 };
-
-#define XSHUT_FRONT 1
-#define XSHUT_BACK 2
-//#define LED_BUILTIN 13
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
   #include <SoftwareSerial.h>
@@ -37,22 +44,9 @@ DynamixelShield dxl;
 using namespace ControlTableItem;
 
 void setup() {
-
   
   // For Uno, Nano, Mini, and Mega, use UART port of DYNAMIXEL Shield to debug.
   DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
-  /*Wire.begin();
-
-    // tof
-    if (!sensor1.init()) {
-      Serial.println("tof nciht gefunden");
-      while (1);
-  }*/
-  /*sensor1.setTimeout(500);
-  sensor1.startContinuous();*/
-  DEBUG_SERIAL.println("tof initialisiert");
-  pinMode(LED_BUILTIN, OUTPUT);
-
 
   // Set Port baudrate to 57600bps. This has to match with DYNAMIXEL baudrate.
   dxl.begin(1000000);
@@ -69,14 +63,6 @@ void setup() {
   dxl.setOperatingMode(Motor_rechts, OP_VELOCITY);
   dxl.torqueOn(Motor_links);
   dxl.torqueOn(Motor_rechts);
-  //Sensors Start:
-  /*pinMode(XSHUT_FRONT, OUTPUT);
-  pinMode(XSHUT_BACK, OUTPUT);
-  digitalWrite(XSHUT_BACK, LOW);
-  digitalWrite(XSHUT_BACK, HIGH);
-  delay(10);
-  sensor2.setAddress(0x30);
-  sensor2.startContinuous();*/
 }
 float stop = -100;
 float msl = -15.0;  //max speed links
@@ -85,30 +71,15 @@ float msr = 85.0;   //max speed rechts
 int Motorlinks_Geschw = 100;   //Variable für lesen aktuelle RPM Motor links
 int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
 
-// returns distance in mm, or -1 if timeout
-unsigned long getDistance() {
-  unsigned long distance = sensor1.readRangeContinuousMillimeters();
-  if (sensor1.timeoutOccurred()) {
-    return -1;
-  } else {
-    return distance;
-  }
-}
 
 void motorController(double Speed, Motor motorlocation) {
-  double correctedSpeed = 0;
   switch (motorlocation)
   {
   case Motor_Links:
-    if (Speed > 0){
-      correctedSpeed = 100 - Speed; //greislig ich weiß
-    }
-    else {
-      correctedSpeed = (100 - Speed) * -1; //greislig ich weiß
-    }
-    dxl.setGoalVelocity(Motor_links, correctedSpeed, UNIT_PERCENT);
+    dxl.setGoalVelocity(Motor_links, Speed, UNIT_PERCENT);
     break;
   case Motor_Rechts:
+    double correctedSpeed = 0;
     if (Speed < 0){
       correctedSpeed = 100 - Speed; //greislig ich weiß
     }
@@ -128,17 +99,24 @@ void motorController(double Speed, Motor motorlocation) {
 }
 
 void loop() {
-  /*if(getDistance() <= 200) {
-    digitalWrite(LED_BUILTIN, HIGH);
+  /*for (int i = 0; i < 100; i++)
+  {
+    motorController(-i, Motor_Links);
+    motorController(-i, Motor_Rechts);
+    delay(100);
   }
-  else {
-    digitalWrite(LED_BUILTIN, LOW);
+  for (int i = 0; i < 50; i++)
+  {
+    motorController(NULL, check);
+    delay(10);
   }
-  yield();
-  Serial.println(getDistance());
-  delay(50);*/
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(100);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(100);
+
+  while(true){yield();}*/
+    
+  //delay(550);
+  /*dxl.setGoalVelocity(Motor_links, 100, UNIT_RPM);
+  dxl.setGoalVelocity(Motor_rechts, 100, UNIT_RPM);*/
+  dxl.setGoalVelocity(Motor_rechts, 50, UNIT_MILLI_AMPERE);
+  dxl.setGoalVelocity(Motor_rechts, 50, UNIT_PERCENT);
+  delay(50);
 }
