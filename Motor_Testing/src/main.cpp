@@ -1,19 +1,3 @@
-/*******************************************************************************
-* Copyright 2016 ROBOTIS CO., LTD.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
-
 #include <DynamixelShield.h>
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
@@ -26,7 +10,8 @@
   #define DEBUG_SERIAL Serial
 #endif
 
-const uint8_t Motor_links = 2;
+//Motor Bezeichnungen
+const uint8_t Motor_links = 2; 
 const uint8_t Motor_rechts = 1;
 
 const float DXL_PROTOCOL_VERSION = 1.0; //Wichtig, nicht 2.0
@@ -37,19 +22,13 @@ DynamixelShield dxl;
 using namespace ControlTableItem;
 
 void setup() {
-  
-  // For Uno, Nano, Mini, and Mega, use UART port of DYNAMIXEL Shield to debug.
   DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
-
-  // Set Port baudrate to 57600bps. This has to match with DYNAMIXEL baudrate.
   dxl.begin(1000000);
-  // Set Port Protocol Version. This has to match with DYNAMIXEL protocol version.
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
-  // Get DYNAMIXEL information
   dxl.ping(Motor_links);
   dxl.ping(Motor_rechts);
 
-  // Turn off torque when configuring items in EEPROM area
+  // Turn off torque when configuring items in EEPROM area, wichtig is OP_VELOCITY wenn wir UNIT_PERCENT nutzen
   dxl.torqueOff(Motor_links);
   dxl.torqueOff(Motor_rechts);
   dxl.setOperatingMode(Motor_links, OP_VELOCITY);
@@ -57,19 +36,37 @@ void setup() {
   dxl.torqueOn(Motor_links);
   dxl.torqueOn(Motor_rechts);
 }
-float stop = -100;
-float msl = -15.0;  //max speed links
-float msr = 85.0;   //max speed rechts
 
-int Motorlinks_Geschw = 100;   //Variable für lesen aktuelle RPM Motor links
-int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
+//Speeds, leebmanns rentner benz
+int Motorlinks_Geschw = -50; 
+int Motorrechts_Geschw = 50;  
+
+void drivegay() {
+  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
+}
+
+void driveslow() {
+  dxl.setGoalVelocity(Motor_links, -30, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, 30, UNIT_PERCENT);
+}
+
+void turnleft(int millisec) {
+  dxl.setGoalVelocity(Motor_links, 0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
+  delay(10*millisec);
+  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
+}
+
+void turnright(int millisec) {
+  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, 0, UNIT_PERCENT);
+  delay(10*millisec);
+  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
+}
 
 void loop() {
-    //bloß zum testen, hat noch nen schlaffen
-    dxl.setGoalVelocity(Motor_links, -1, UNIT_PERCENT);
-    dxl.setGoalVelocity(Motor_rechts, 99, UNIT_PERCENT);
-    Motorlinks_Geschw = dxl.getPresentVelocity(2);  //Übergebe derzeitige Drehzahl als Raw Wert dxl.getPresentVelocity(Motor_ID , Einheit) => Einheit: keine Eingabe=RAW | UNIT_RPM=Drehzahl pro Min | UNIT_PERCENT =%
-    Motorrechts_Geschw = dxl.getPresentVelocity(1);
-
     delay(550);
 }
