@@ -1,4 +1,14 @@
 #include <DynamixelShield.h>
+#include <Arduino.h>
+#include <VL53L0X.h>
+#include <Wire.h>
+
+VL53L0X sensor1;
+VL53L0X sensor2;
+
+#define XSHUT_FRONT 1
+#define XSHUT_BACK 2
+//#define LED_BUILTIN 13
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
   #include <SoftwareSerial.h>
@@ -23,6 +33,19 @@ using namespace ControlTableItem;
 
 void setup() {
   DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
+
+  Wire.begin();
+
+    // tof
+    if (!sensor1.init()) {
+      Serial.println("tof nciht gefunden");
+      while (1);
+  }
+  sensor1.setTimeout(500);
+  sensor1.startContinuous();
+  DEBUG_SERIAL.println("tof initialisiert");
+  pinMode(LED_BUILTIN, OUTPUT);
+
   dxl.begin(1000000);
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
   dxl.ping(Motor_links);
@@ -35,6 +58,14 @@ void setup() {
   dxl.setOperatingMode(Motor_rechts, OP_VELOCITY);
   dxl.torqueOn(Motor_links);
   dxl.torqueOn(Motor_rechts);
+  //Sensors Start:
+  /*pinMode(XSHUT_FRONT, OUTPUT);
+  pinMode(XSHUT_BACK, OUTPUT);
+  digitalWrite(XSHUT_BACK, LOW);
+  digitalWrite(XSHUT_BACK, HIGH);
+  delay(10);
+  sensor2.setAddress(0x30);
+  sensor2.startContinuous();*/
 }
 
 //Speeds, leebmanns rentner benz
