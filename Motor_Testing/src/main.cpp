@@ -44,7 +44,6 @@ void setup() {
   sensor1.setTimeout(500);
   sensor1.startContinuous();
   DEBUG_SERIAL.println("tof initialisiert");
-  pinMode(LED_BUILTIN, OUTPUT);
 
   dxl.begin(1000000);
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
@@ -58,14 +57,6 @@ void setup() {
   dxl.setOperatingMode(Motor_rechts, OP_VELOCITY);
   dxl.torqueOn(Motor_links);
   dxl.torqueOn(Motor_rechts);
-  //Sensors Start:
-  /*pinMode(XSHUT_FRONT, OUTPUT);
-  pinMode(XSHUT_BACK, OUTPUT);
-  digitalWrite(XSHUT_BACK, LOW);
-  digitalWrite(XSHUT_BACK, HIGH);
-  delay(10);
-  sensor2.setAddress(0x30);
-  sensor2.startContinuous();*/
 }
 
 //Speeds, leebmanns rentner benz
@@ -82,22 +73,40 @@ void driveslow() {
   dxl.setGoalVelocity(Motor_rechts, 30, UNIT_PERCENT);
 }
 
-void turnleft(int millisec) {
-  dxl.setGoalVelocity(Motor_links, 0, UNIT_PERCENT);
-  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
-  delay(10*millisec);
-  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
+void turnleft() {
+  dxl.setGoalVelocity(Motor_links, Motor_links/2, UNIT_PERCENT);
   dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
 }
 
-void turnright(int millisec) {
+void turnright() {
   dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
-  dxl.setGoalVelocity(Motor_rechts, 0, UNIT_PERCENT);
-  delay(10*millisec);
-  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, Motorlinks_Geschw/2, UNIT_PERCENT);
+}
+
+void turnsharpleft() {
+  dxl.setGoalVelocity(Motor_links, 0, UNIT_PERCENT);
   dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
+}
+
+unsigned long getDistance() {
+  unsigned long distance = sensor1.readRangeContinuousMillimeters();
+  if (sensor1.timeoutOccurred()) {
+    return -1;
+  } else {
+    return distance;
+  }
 }
 
 void loop() {
-    delay(550);
+  drivegay();
+  if (getDistance() > 15 && getDistance() < 30){
+    turnleft();
+  }
+  if (getDistance() < 10) {
+    turnright();
+  }
+  if (getDistance() > 30) {
+    turnsharpleft();
+  }
+  delay(10);
 }
