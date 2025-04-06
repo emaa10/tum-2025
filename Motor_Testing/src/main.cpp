@@ -68,23 +68,33 @@ void drivegay() {
 }
 
 void driveslow() {
-  dxl.setGoalVelocity(Motor_links, -30, UNIT_PERCENT);
-  dxl.setGoalVelocity(Motor_rechts, 30, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw/2, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw/2, UNIT_PERCENT);
 }
 
 void turnleft() {
-  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_links, 20, UNIT_PERCENT);
   dxl.setGoalVelocity(Motor_rechts, 99, UNIT_PERCENT);
 }
 
 void turnright() {
-  dxl.setGoalVelocity(Motor_links, -99, UNIT_PERCENT);
-  dxl.setGoalVelocity(Motor_rechts, -0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, -80, UNIT_PERCENT);
 }
 
 void turnsharpleft() {
   dxl.setGoalVelocity(Motor_links, 0, UNIT_PERCENT);
   dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
+}
+
+void dance() {
+  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, -0, UNIT_PERCENT);
+}
+
+void driveBergauf() {
+  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT); //voller drehmoment
+  dxl.setGoalVelocity(Motor_rechts, 90, UNIT_PERCENT); //langsame dreh zahl damit er hochkommt
 }
 
 unsigned long getDistance() {
@@ -94,11 +104,6 @@ unsigned long getDistance() {
   } else {
     return distance;
   }
-}
-
-void driveBergauf() {
-  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
-  dxl.setGoalVelocity(Motor_rechts, 80, UNIT_PERCENT);
 }
 
 void loop() {
@@ -113,7 +118,7 @@ void loop() {
   }
   if (distance > 100 && distance < 200)
   {*/
-    driveBergauf();
+    turnright();
   //}
   delay(10);
 }
