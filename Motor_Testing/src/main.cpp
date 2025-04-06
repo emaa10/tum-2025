@@ -4,7 +4,6 @@
 #include <Wire.h>
 
 VL53L0X sensor1;
-VL53L0X sensor2;
 
 #define XSHUT_FRONT 1
 #define XSHUT_BACK 2
@@ -33,17 +32,17 @@ using namespace ControlTableItem;
 
 void setup() {
   DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
-
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
   Wire.begin();
-
-    // tof
-    if (!sensor1.init()) {
-      Serial.println("tof nciht gefunden");
-      while (1);
-  }
   sensor1.setTimeout(500);
+  if (!sensor1.init())
+  {
+    Serial.println("Failed to detect and initialize sensor!");
+    while (1) {}
+  }
   sensor1.startContinuous();
-  DEBUG_SERIAL.println("tof initialisiert");
+  digitalWrite(LED_BUILTIN, LOW);
 
   dxl.begin(1000000);
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
@@ -74,13 +73,13 @@ void driveslow() {
 }
 
 void turnleft() {
-  dxl.setGoalVelocity(Motor_links, Motor_links/2, UNIT_PERCENT);
-  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_links, 50, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, 99, UNIT_PERCENT);
 }
 
 void turnright() {
-  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
-  dxl.setGoalVelocity(Motor_rechts, Motorlinks_Geschw/2, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_links, -99, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, -50, UNIT_PERCENT);
 }
 
 void turnsharpleft() {
@@ -91,22 +90,31 @@ void turnsharpleft() {
 unsigned long getDistance() {
   unsigned long distance = sensor1.readRangeContinuousMillimeters();
   if (sensor1.timeoutOccurred()) {
-    return -1;
+    return 120; //wenn sensor scheiße macht juckt keinen
   } else {
     return distance;
   }
 }
 
 void loop() {
-  drivegay();
-  if (getDistance() > 15 && getDistance() < 30){
-    turnleft();
-  }
-  if (getDistance() < 10) {
+  unsigned long distance = getDistance();
+  if (distance > 200){
     turnright();
+    digitalWrite(LED_BUILTIN, HIGH);
   }
-  if (getDistance() > 30) {
+  if (distance < 100) {
+    turnleft();
+    digitalWrite(LED_BUILTIN, LOW);
+  }
+  if (distance > 100 && distance < 200)
+  {
+    drivegay();
+  }
+  
+  /*if (distance > 200) {
     turnsharpleft();
-  }
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(200);
+  }*/
   delay(10);
 }
