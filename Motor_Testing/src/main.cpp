@@ -73,7 +73,7 @@ void driveslow() {
 }
 
 void turnleft() {
-  dxl.setGoalVelocity(Motor_links, 50, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
   dxl.setGoalVelocity(Motor_rechts, 99, UNIT_PERCENT);
 }
 
@@ -96,20 +96,28 @@ unsigned long getDistance() {
   }
 }
 
+void driveBergauf() {
+  /*dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, 100, UNIT_PERCENT);
+  delay(1000);*/
+  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, 80, UNIT_PERCENT);
+}
+
 void loop() {
   unsigned long distance = getDistance();
-  if (distance > 200){
-    turnright();
+ /* if (distance > 200){
+    turnleft();
     digitalWrite(LED_BUILTIN, HIGH);
   }
   if (distance < 100) {
-    turnleft();
+    turnright();
     digitalWrite(LED_BUILTIN, LOW);
   }
   if (distance > 100 && distance < 200)
-  {
-    drivegay();
-  }
+  {*/
+    driveBergauf();
+  //}
   
   /*if (distance > 200) {
     turnsharpleft();
