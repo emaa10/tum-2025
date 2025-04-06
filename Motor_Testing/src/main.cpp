@@ -95,30 +95,47 @@ void dance() {
 void driveBergauf() {
   dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT); //voller drehmoment
   dxl.setGoalVelocity(Motor_rechts, 90, UNIT_PERCENT); //langsame dreh zahl damit er hochkommt
-}
+}  
 
 unsigned long getDistance() {
   unsigned long distance = sensor1.readRangeContinuousMillimeters();
   if (sensor1.timeoutOccurred()) {
-    return 120; //wenn sensor scheiße macht juckt keinen
+    return 500; //des kannst keinem erzählen
   } else {
     return distance;
   }
 }
 
+int turn_staerke = 2;
+int turns = 0;
+
 void loop() {
-  unsigned long distance = getDistance();
- /* if (distance > 200){
+  if (getDistance() > 400)
+  {
     turnleft();
     digitalWrite(LED_BUILTIN, HIGH);
+    delay(1000);
+    drivegay();
+    delay(500);
+    turns++;
   }
-  if (distance < 100) {
+ if (getDistance() > 200){
+    turnleft();
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(turn_staerke * 100);
+    drivegay();
+    delay(100);
+  }
+  if (getDistance() < 100) {
     turnright();
     digitalWrite(LED_BUILTIN, LOW);
+    delay(turn_staerke * 300);
+    drivegay();
+    delay(100);
   }
-  if (distance > 100 && distance < 200)
-  {*/
-    turnright();
+  else{
+    drivegay();
+  }
   //}
   delay(10);
 }
