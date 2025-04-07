@@ -16,12 +16,14 @@
 
 #include <DynamixelShield.h>
 #include <Arduino.h>
+#include <VL53L0X.h>
+#include <Wire.h>
 
-enum Motor {
-  Motor_Links,
-  Motor_Rechts,
-  check,
-};
+VL53L0X sensor1;
+
+#define XSHUT_FRONT 1
+#define XSHUT_BACK 2
+//#define LED_BUILTIN 13
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
   #include <SoftwareSerial.h>
@@ -33,7 +35,8 @@ enum Motor {
   #define DEBUG_SERIAL Serial
 #endif
 
-const uint8_t Motor_links = 2;
+//Motor Bezeichnungen
+const uint8_t Motor_links = 2; 
 const uint8_t Motor_rechts = 1;
 
 const float DXL_PROTOCOL_VERSION = 1.0; //Wichtig, nicht 2.0
@@ -44,19 +47,25 @@ DynamixelShield dxl;
 using namespace ControlTableItem;
 
 void setup() {
-  
-  // For Uno, Nano, Mini, and Mega, use UART port of DYNAMIXEL Shield to debug.
   DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  Wire.begin();
+  sensor1.setTimeout(500);
+  if (!sensor1.init())
+  {
+    Serial.println("Failed to detect and initialize sensor!");
+    while (1) {}
+  }
+  sensor1.startContinuous();
+  digitalWrite(LED_BUILTIN, LOW);
 
-  // Set Port baudrate to 57600bps. This has to match with DYNAMIXEL baudrate.
   dxl.begin(1000000);
-  // Set Port Protocol Version. This has to match with DYNAMIXEL protocol version.
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
-  // Get DYNAMIXEL information
   dxl.ping(Motor_links);
   dxl.ping(Motor_rechts);
 
-  // Turn off torque when configuring items in EEPROM area
+  // Turn off torque when configuring items in EEPROM area, wichtig is OP_VELOCITY wenn wir UNIT_PERCENT nutzen
   dxl.torqueOff(Motor_links);
   dxl.torqueOff(Motor_rechts);
   dxl.setOperatingMode(Motor_links, OP_VELOCITY);
@@ -64,59 +73,83 @@ void setup() {
   dxl.torqueOn(Motor_links);
   dxl.torqueOn(Motor_rechts);
 }
-float stop = -100;
-float msl = -15.0;  //max speed links
-float msr = 85.0;   //max speed rechts
 
-int Motorlinks_Geschw = 100;   //Variable für lesen aktuelle RPM Motor links
-int Motorrechts_Geschw = 100;  //Variable für lesen aktuelle RPM Motor rechts
+//Speeds, leebmanns rentner benz
+int Motorlinks_Geschw = -50; 
+int Motorrechts_Geschw = 50;  
 
+void drivegay() {
+  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
+}
 
-void motorController(double Speed, Motor motorlocation) {
-  switch (motorlocation)
-  {
-  case Motor_Links:
-    dxl.setGoalVelocity(Motor_links, Speed, UNIT_PERCENT);
-    break;
-  case Motor_Rechts:
-    double correctedSpeed = 0;
-    if (Speed < 0){
-      correctedSpeed = 100 - Speed; //greislig ich weiß
-    }
-    else {
-      correctedSpeed = (100 - Speed) * -1; //greislig ich weiß
-    }
-    dxl.setGoalVelocity(Motor_rechts, correctedSpeed, UNIT_PERCENT);
-    break;
-  case check:
-    //Control loop
-    Motorlinks_Geschw = dxl.getPresentVelocity(1);
-    Motorrechts_Geschw = dxl.getPresentVelocity(2);
-    dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_RPM);
-    dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_RPM);
-    break;
+void driveslow() {
+  dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw/2, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw/2, UNIT_PERCENT);
+}
+
+void turnleft() {
+  dxl.setGoalVelocity(Motor_links, 20, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, 99, UNIT_PERCENT);
+}
+
+void turnright() {
+  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, -80, UNIT_PERCENT);
+}
+
+void turnsharpleft() {
+  dxl.setGoalVelocity(Motor_links, 0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, Motorrechts_Geschw, UNIT_PERCENT);
+}
+
+void dance() {
+  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_rechts, -0, UNIT_PERCENT);
+}
+
+void driveBergauf() {
+  dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT); //voller drehmoment
+  dxl.setGoalVelocity(Motor_rechts, 90, UNIT_PERCENT); //langsame dreh zahl damit er hochkommt
+}  
+
+unsigned long getDistance() {
+  unsigned long distance = sensor1.readRangeContinuousMillimeters();
+  if (sensor1.timeoutOccurred()) {
+    return 500; //des kannst keinem erzählen
+  } else {
+    return distance;
   }
 }
 
+int turn_staerke = 1.9;
+int turns = 0;
+
 void loop() {
-  /*for (int i = 0; i < 100; i++)
-  {
-    motorController(-i, Motor_Links);
-    motorController(-i, Motor_Rechts);
-    delay(100);
-  }
-  for (int i = 0; i < 50; i++)
-  {
-    motorController(NULL, check);
-    delay(10);
+ if (getDistance() > 200){
+    turnleft();
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(turn_staerke * 100);
+    drivegay();
+    if (getDistance() > 300)
+    {
+      delay(30);
+    }
+    else{
+      delay(100);
+    }
   }
 
-  while(true){yield();}*/
-    
-  //delay(550);
-  /*dxl.setGoalVelocity(Motor_links, 100, UNIT_RPM);
-  dxl.setGoalVelocity(Motor_rechts, 100, UNIT_RPM);*/
-  dxl.setGoalVelocity(Motor_rechts, 50, UNIT_MILLI_AMPERE);
-  dxl.setGoalVelocity(Motor_rechts, 50, UNIT_PERCENT);
-  delay(50);
+  if (getDistance() < 100) {
+    turnright();
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(turn_staerke * 100);
+    drivegay();
+    delay(100);
+  }
+  else{
+    drivegay();
+  }
+  //}
+  delay(10);
 }
