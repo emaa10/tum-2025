@@ -19,7 +19,8 @@
 #include <VL53L0X.h>
 #include <Wire.h>
 
-VL53L0X sensor1;
+VL53L0X back; //hinten
+VL53L0X front; //vorne
 
 #define XSHUT_FRONT 1
 #define XSHUT_BACK 2
@@ -51,13 +52,20 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   Wire.begin();
-  sensor1.setTimeout(500);
-  if (!sensor1.init())
+  back.setTimeout(500);
+  front.setTimeout(500);
+  if (!back.init())
   {
-    Serial.println("Failed to detect and initialize sensor!");
+    Serial.println("Failed to detect and initialize back sensor!");
     while (1) {}
   }
-  sensor1.startContinuous();
+  back.startContinuous();
+  if (!front.init())
+  {
+    Serial.println("Failed to detect and initialize front sensor!");
+    while (1) {}
+  }
+  front.startContinuous();
   digitalWrite(LED_BUILTIN, LOW);
 
   dxl.begin(1000000);
@@ -113,9 +121,9 @@ void driveBergauf() {
   dxl.setGoalVelocity(Motor_rechts, 90, UNIT_PERCENT); //langsame dreh zahl damit er hochkommt
 }  
 
-unsigned long getDistance() {
-  unsigned long distance = sensor1.readRangeContinuousMillimeters();
-  if (sensor1.timeoutOccurred()) {
+unsigned long getDistance(VL53L0X sensor) {
+  unsigned long distance = sensor.readRangeContinuousMillimeters();
+  if (sensor.timeoutOccurred()) {
     return 500; //des kannst keinem erzählen
   } else {
     return distance;
