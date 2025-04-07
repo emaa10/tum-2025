@@ -56,20 +56,33 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   Wire.begin();
+  //Sensors Start:
+  pinMode(XSHUT_FRONT, OUTPUT);
+  pinMode(XSHUT_BACK, OUTPUT);
+  digitalWrite(XSHUT_BACK, LOW);
+  digitalWrite(XSHUT_BACK, HIGH);
+  delay(10);
+  back.setAddress(0x30);
   back.setTimeout(500);
-  front.setTimeout(500);
   if (!back.init())
   {
-    Serial.println("Failed to detect and initialize back sensor!");
-    while (1) {}
-  }
+      Serial.println("Failed to detect and initialize back sensor!");
+      while (1) {}
+    }
   back.startContinuous();
+  
+  digitalWrite(XSHUT_FRONT, LOW);
+  digitalWrite(XSHUT_FRONT, HIGH);
+  delay(10);
+  front.setAddress(0x31);
+  front.setTimeout(500);
   if (!front.init())
   {
-    Serial.println("Failed to detect and initialize front sensor!");
-    while (1) {}
-  }
+      Serial.println("Failed to detect and initialize front sensor!");
+      while (1) {}
+    }
   front.startContinuous();
+
   digitalWrite(LED_BUILTIN, LOW);
 
   dxl.begin(1000000);
