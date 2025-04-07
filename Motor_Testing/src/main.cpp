@@ -122,7 +122,7 @@ unsigned long getDistance() {
   }
 }
 
-int turn_staerke = 1.9;
+int turn_staerke = 1.2;
 int turns = 0;
 
 void loop() {
@@ -131,13 +131,6 @@ void loop() {
     digitalWrite(LED_BUILTIN, HIGH);
     delay(turn_staerke * 100);
     drivegay();
-    if (getDistance() > 300)
-    {
-      delay(30);
-    }
-    else{
-      delay(100);
-    }
   }
 
   if (getDistance() < 100) {
