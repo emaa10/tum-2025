@@ -22,8 +22,8 @@
 VL53L0X back; //hinten
 VL53L0X front; //vorne
 
-#define XSHUT_FRONT 1
-#define XSHUT_BACK 2
+#define XSHUT_FRONT 24
+#define XSHUT_BACK 22
 //#define LED_BUILTIN 13
 
 #define SENSOR_SEPARATION 195  // Abstand in mm (19,5 cm)
@@ -60,6 +60,7 @@ void setup() {
   pinMode(XSHUT_FRONT, OUTPUT);
   pinMode(XSHUT_BACK, OUTPUT);
   digitalWrite(XSHUT_BACK, LOW);
+  digitalWrite(XSHUT_FRONT, LOW);
   digitalWrite(XSHUT_BACK, HIGH);
   delay(10);
   back.setAddress(0x30);
@@ -71,7 +72,6 @@ void setup() {
     }
   back.startContinuous();
   
-  digitalWrite(XSHUT_FRONT, LOW);
   digitalWrite(XSHUT_FRONT, HIGH);
   delay(10);
   front.setAddress(0x31);
