@@ -126,13 +126,21 @@ int turn_staerke = 1.2;
 int turns = 0;
 
 void loop() {
- if (getDistance() > 200){
+ if (getDistance() > 200 && getDistance() < 300){
     turnleft();
     digitalWrite(LED_BUILTIN, HIGH);
     delay(turn_staerke * 100);
     drivegay();
   }
-
+  if (getDistance() > 300)
+  {
+    dxl.setGoalVelocity(Motor_links, -0, UNIT_PERCENT);
+    dxl.setGoalVelocity(Motor_rechts, -0, UNIT_PERCENT);
+    while (1)
+    {
+    }
+    
+  }
   if (getDistance() < 100) {
     turnright();
     digitalWrite(LED_BUILTIN, LOW);
