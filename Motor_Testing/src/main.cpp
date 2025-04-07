@@ -26,6 +26,10 @@ VL53L0X front; //vorne
 #define XSHUT_BACK 2
 //#define LED_BUILTIN 13
 
+#define SENSOR_SEPARATION 195  // Abstand in mm (19,5 cm)
+#define ANGLE_THRESHOLD 5      // Schwellwert in Grad für Korrektur
+#define CORRECTION_FACTOR 5    // Faktor für die Korrektur-Delay (anpassen, um den Korrekturschlag zu justieren)
+
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
   #include <SoftwareSerial.h>
   SoftwareSerial soft_serial(7, 8); // DYNAMIXELShield UART RX/TX
@@ -133,24 +137,42 @@ unsigned long getDistance(VL53L0X sensor) {
 int turn_staerke = 1.2;
 int turns = 0;
 
+
+void correctAngle() {
+  long distFront = getDistance(front);
+  long distBack  = getDistance(back);
+  long diff = distFront - distBack;
+  
+  float angleRad = atan2(diff, SENSOR_SEPARATION);
+  float angleDeg = angleRad * 180.0 / PI;
+  
+  if (abs(angleDeg) > ANGLE_THRESHOLD) {
+    if (angleDeg > 0) {
+      turnleft();
+    } else {
+      turnright();
+    }
+    delay(CORRECTION_FACTOR * abs(angleDeg));
+  }
+}
+
 void loop() {
- if (getDistance() > 200){
+  if (getDistanceFront() > 200) {
     turnleft();
     digitalWrite(LED_BUILTIN, HIGH);
     delay(turn_staerke * 100);
     drivegay();
   }
-
-  if (getDistance() < 100) {
+  else if (getDistanceFront() < 100) {
     turnright();
     digitalWrite(LED_BUILTIN, LOW);
     delay(turn_staerke * 100);
     drivegay();
     delay(100);
   }
-  else{
+  else {
+    correctAngle();
     drivegay();
   }
-  //}
   delay(10);
 }
