@@ -157,13 +157,13 @@ void correctAngle() {
 }
 
 void loop() {
-  if (getDistanceFront() > 200) {
+  if (getDistance(front) > 200) {
     turnleft();
     digitalWrite(LED_BUILTIN, HIGH);
     delay(turn_staerke * 100);
     drivegay();
   }
-  else if (getDistanceFront() < 100) {
+  else if (getDistance(front) < 100) {
     turnright();
     digitalWrite(LED_BUILTIN, LOW);
     delay(turn_staerke * 100);
