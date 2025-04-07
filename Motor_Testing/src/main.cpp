@@ -22,8 +22,8 @@
 VL53L0X back; //hinten
 VL53L0X front; //vorne
 
-#define XSHUT_FRONT 24
-#define XSHUT_BACK 22
+#define XSHUT_FRONT 50
+#define XSHUT_BACK 51
 //#define LED_BUILTIN 13
 
 #define SENSOR_SEPARATION 195  // Abstand in mm (19,5 cm)
@@ -52,7 +52,7 @@ DynamixelShield dxl;
 using namespace ControlTableItem;
 
 void setup() {
-  DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
+  Serial.begin(9600); //Die Baudrate nehmen sonst stirb er iwi
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   Wire.begin();
@@ -61,26 +61,42 @@ void setup() {
   pinMode(XSHUT_BACK, OUTPUT);
   digitalWrite(XSHUT_BACK, LOW);
   digitalWrite(XSHUT_FRONT, LOW);
+  delay(10);
   digitalWrite(XSHUT_BACK, HIGH);
   delay(10);
-  back.setAddress(0x30);
+
   back.setTimeout(500);
   if (!back.init())
   {
       Serial.println("Failed to detect and initialize back sensor!");
-      while (1) {}
+      while (1) {
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(500);
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(500);
+        Serial.println("fehler1");
+      }
     }
-  back.startContinuous();
+  back.setAddress(0x30);
   
+  delay(10);
   digitalWrite(XSHUT_FRONT, HIGH);
   delay(10);
-  front.setAddress(0x31);
+
   front.setTimeout(500);
   if (!front.init())
   {
       Serial.println("Failed to detect and initialize front sensor!");
-      while (1) {}
-    }
+      while (1) {
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(500);
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(500);
+        Serial.println("Fheler 2");
+      }
+    }  
+  front.setAddress(0x31);
+  back.startContinuous();
   front.startContinuous();
 
   digitalWrite(LED_BUILTIN, LOW);
@@ -170,7 +186,7 @@ void correctAngle() {
 }
 
 void loop() {
-  if (getDistance(front) > 200) {
+  /*if (getDistance(front) > 200) {
     turnleft();
     digitalWrite(LED_BUILTIN, HIGH);
     delay(turn_staerke * 100);
@@ -187,5 +203,10 @@ void loop() {
     correctAngle();
     drivegay();
   }
-  delay(10);
+  delay(10);*/
+  Serial.print("vorne:");
+  Serial.print(getDistance(front));
+  Serial.print("back");
+  Serial.println(getDistance(back));
+  delay(20);
 }
