@@ -142,7 +142,7 @@ void loop() {
     delay(100 * verzoergern);
   }
 
-  if (getDistance() < 100) { //zu nah an der wand, etwas zurückfahren
+  if (getDistance() < 60) { //zu nah an der wand, etwas zurückfahren
     turnright();
     digitalWrite(LED_BUILTIN, LOW);
     delay(turn_staerke * 100);
