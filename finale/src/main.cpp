@@ -123,12 +123,12 @@ unsigned long getDistance() {
 }
 
 //Variablen zum Tunen
-int turn_staerke = 1.237; //Größer -> kleinere Kurve
+int turn_staerke = 1.24; //Größer -> kleinere Kurve
 int verzoergern = 1; //Größer --> mehr strecke in der Kurve zurückgelegt --> größere kurve
 int turns = 0;
 
 void loop() {
- if (getDistance() > 200){ //wieder zur wand hinfahren
+ if (getDistance() > 100){ //wieder zur wand hinfahren
     if (getDistance() > 300 && false){ //Ecke erkannt (Corner detection(funktioniert nicht recht))
       turnleft();
       delay(3000);
