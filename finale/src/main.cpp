@@ -123,7 +123,7 @@ unsigned long getDistance() {
 }
 
 //Variablen zum Tunen
-int turn_staerke = 1.24; //Größer -> kleinere Kurve
+int turn_staerke = 1.236; //Größer -> kleinere Kurve
 int verzoergern = 1; //Größer --> mehr strecke in der Kurve zurückgelegt --> größere kurve
 int turns = 0;
 
