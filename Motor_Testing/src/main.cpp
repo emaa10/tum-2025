@@ -128,6 +128,12 @@ int turns = 0;
 
 void loop() {
  if (getDistance() > 200){
+    if (false){
+      turnleft();
+      delay(3000);
+      drivegay();
+      delay(2000);
+    }
     turnleft();
     digitalWrite(LED_BUILTIN, HIGH);
     delay(turn_staerke * 100);
