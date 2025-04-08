@@ -75,8 +75,8 @@ void setup() {
 }
 
 //Fahr Konstanten
-int Motorlinks_Geschw = -50; 
-int Motorrechts_Geschw = 50;  
+int Motorlinks_Geschw = -30; 
+int Motorrechts_Geschw = 70;  
 
 void drivegay() {
   dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
@@ -129,12 +129,6 @@ int turns = 0;
 
 void loop() {
  if (getDistance() > 100){ //wieder zur wand hinfahren
-    if (getDistance() > 300 && false){ //Ecke erkannt (Corner detection(funktioniert nicht recht))
-      turnleft();
-      delay(3000);
-      drivegay();
-      delay(2000);
-    }
     turnleft();
     digitalWrite(LED_BUILTIN, HIGH);
     delay(turn_staerke * 100);
