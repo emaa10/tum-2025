@@ -89,7 +89,7 @@ void driveslow() {
 }
 
 void turnleft() {
-  dxl.setGoalVelocity(Motor_links, 20, UNIT_PERCENT);
+  dxl.setGoalVelocity(Motor_links, -50, UNIT_PERCENT);
   dxl.setGoalVelocity(Motor_rechts, 99, UNIT_PERCENT);
 }
 
