@@ -74,7 +74,7 @@ void setup() {
   dxl.torqueOn(Motor_rechts);
 }
 
-//Speeds, leebmanns rentner benz
+//Fahr Konstanten
 int Motorlinks_Geschw = -50; 
 int Motorrechts_Geschw = 50;  
 
@@ -122,13 +122,14 @@ unsigned long getDistance() {
   }
 }
 
-int turn_staerke = 1.2;
-int verzoergern = 1;
+//Variablen zum Tunen
+int turn_staerke = 1.2; //Größer -> kleinere Kurve
+int verzoergern = 1; //Größer --> mehr strecke in der Kurve zurückgelegt --> größere kurve
 int turns = 0;
 
 void loop() {
- if (getDistance() > 200){
-    if (false){
+ if (getDistance() > 200){ //wieder zur wand hinfahren
+    if (getDistance() > 300 && false){ //Ecke erkannt (Corner detection(funktioniert nicht recht))
       turnleft();
       delay(3000);
       drivegay();
@@ -141,7 +142,7 @@ void loop() {
     delay(100 * verzoergern);
   }
 
-  if (getDistance() < 100) {
+  if (getDistance() < 100) { //zu nah an der wand, etwas zurückfahren
     turnright();
     digitalWrite(LED_BUILTIN, LOW);
     delay(turn_staerke * 100);
@@ -149,7 +150,7 @@ void loop() {
     delay(100 * verzoergern);
   }
   else{
-    drivegay();
+    drivegay(); //default case
   }
-  delay(10);
+  delay(10); //laufzeit
 }
