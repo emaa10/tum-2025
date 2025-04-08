@@ -19,16 +19,12 @@
 #include <VL53L0X.h>
 #include <Wire.h>
 
-VL53L0X back; //hinten
-VL53L0X front; //vorne
+VL53L0X sensor1;
+VL53L0X sensor2;
 
-#define XSHUT_FRONT 50
-#define XSHUT_BACK 51
+#define XSHUT_FRONT 24
+#define XSHUT_BACK 22
 //#define LED_BUILTIN 13
-
-#define SENSOR_SEPARATION 195  // Abstand in mm (19,5 cm)
-#define ANGLE_THRESHOLD 5      // Schwellwert in Grad für Korrektur
-#define CORRECTION_FACTOR 5    // Faktor für die Korrektur-Delay (anpassen, um den Korrekturschlag zu justieren)
 
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
   #include <SoftwareSerial.h>
@@ -51,55 +47,55 @@ DynamixelShield dxl;
 //This namespace is required to use Control table item names
 using namespace ControlTableItem;
 
-void setup() {
-  Serial.begin(9600); //Die Baudrate nehmen sonst stirb er iwi
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
+void startsensors() {
   Wire.begin();
-  //Sensors Start:
-  pinMode(XSHUT_FRONT, OUTPUT);
   pinMode(XSHUT_BACK, OUTPUT);
+  pinMode(XSHUT_FRONT, OUTPUT);
   digitalWrite(XSHUT_BACK, LOW);
   digitalWrite(XSHUT_FRONT, LOW);
   delay(10);
   digitalWrite(XSHUT_BACK, HIGH);
-  delay(10);
-
-  back.setTimeout(500);
-  if (!back.init())
+  delay(10); // debug 
+  sensor1.setTimeout(500);
+  if (!sensor1.init())
   {
-      Serial.println("Failed to detect and initialize back sensor!");
-      while (1) {
+    Serial.println("Failed to detect and initialize sensor!");
+    while (1) {
         digitalWrite(LED_BUILTIN, HIGH);
         delay(500);
         digitalWrite(LED_BUILTIN, LOW);
         delay(500);
-        Serial.println("fehler1");
-      }
     }
-  back.setAddress(0x30);
-  
+  }
+  sensor1.setAddress(0x30);
+  sensor1.startContinuous();
+
   delay(10);
   digitalWrite(XSHUT_FRONT, HIGH);
-  delay(10);
-
-  front.setTimeout(500);
-  if (!front.init())
+  delay(10); // debug 
+  sensor2.setTimeout(500);
+  if (!sensor2.init())
   {
-      Serial.println("Failed to detect and initialize front sensor!");
-      while (1) {
+    Serial.println("Failed to detect and initialize sensor!");
+    while (1) {
         digitalWrite(LED_BUILTIN, HIGH);
         delay(500);
         digitalWrite(LED_BUILTIN, LOW);
         delay(500);
-        Serial.println("Fheler 2");
-      }
-    }  
-  front.setAddress(0x31);
-  back.startContinuous();
-  front.startContinuous();
+    }
+  }
+  sensor2.setAddress(0x31);
+  sensor2.startContinuous();
 
   digitalWrite(LED_BUILTIN, LOW);
+}
+
+void setup() {
+  DEBUG_SERIAL.begin(19200); //Die Baudrate nehmen sonst stirb er iwi
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+
+  startsensors();
 
   dxl.begin(1000000);
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
@@ -154,9 +150,18 @@ void driveBergauf() {
   dxl.setGoalVelocity(Motor_rechts, 90, UNIT_PERCENT); //langsame dreh zahl damit er hochkommt
 }  
 
-unsigned long getDistance(VL53L0X sensor) {
-  unsigned long distance = sensor.readRangeContinuousMillimeters();
-  if (sensor.timeoutOccurred()) {
+unsigned long getDistanceback() {
+  unsigned long distance = sensor1.readRangeContinuousMillimeters();
+  if (sensor1.timeoutOccurred()) {
+    return 500; //des kannst keinem erzählen
+  } else {
+    return distance;
+  }
+}
+
+unsigned long getDistancefront() {
+  unsigned long distance = sensor1.readRangeContinuousMillimeters();
+  if (sensor1.timeoutOccurred()) {
     return 500; //des kannst keinem erzählen
   } else {
     return distance;
@@ -166,47 +171,24 @@ unsigned long getDistance(VL53L0X sensor) {
 int turn_staerke = 1.2;
 int turns = 0;
 
-
-void correctAngle() {
-  long distFront = getDistance(front);
-  long distBack  = getDistance(back);
-  long diff = distFront - distBack;
-  
-  float angleRad = atan2(diff, SENSOR_SEPARATION);
-  float angleDeg = angleRad * 180.0 / PI;
-  
-  if (abs(angleDeg) > ANGLE_THRESHOLD) {
-    if (angleDeg > 0) {
-      turnleft();
-    } else {
-      turnright();
-    }
-    delay(CORRECTION_FACTOR * abs(angleDeg));
-  }
-}
-
 void loop() {
-  /*if (getDistance(front) > 200) {
+ if (getDistancefront() > 200){
     turnleft();
     digitalWrite(LED_BUILTIN, HIGH);
     delay(turn_staerke * 100);
     drivegay();
   }
-  else if (getDistance(front) < 100) {
+
+  if (getDistancefront() < 100) {
     turnright();
     digitalWrite(LED_BUILTIN, LOW);
     delay(turn_staerke * 100);
     drivegay();
     delay(100);
   }
-  else {
-    correctAngle();
+  else{
     drivegay();
   }
-  delay(10);*/
-  Serial.print("vorne:");
-  Serial.print(getDistance(front));
-  Serial.print("back");
-  Serial.println(getDistance(back));
-  delay(20);
+  //}
+  delay(10);
 }
