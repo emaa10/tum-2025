@@ -75,8 +75,8 @@ void setup() {
 }
 
 //Fahr Konstanten
-int Motorlinks_Geschw = -30; 
-int Motorrechts_Geschw = 70;  
+int Motorlinks_Geschw = -50; 
+int Motorrechts_Geschw = 50;  
 
 void drivegay() {
   dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
