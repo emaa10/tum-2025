@@ -75,8 +75,8 @@ void setup() {
 }
 
 //Fahr Konstanten
-int Motorlinks_Geschw = -50; 
-int Motorrechts_Geschw = 50;  
+int Motorlinks_Geschw = -0; 
+int Motorrechts_Geschw = 100;  
 
 void drivegay() {
   dxl.setGoalVelocity(Motor_links, Motorlinks_Geschw, UNIT_PERCENT);
@@ -123,7 +123,7 @@ unsigned long getDistance() {
 }
 
 //Variablen zum Tunen
-int turn_staerke = 1.23; //Größer -> kleinere Kurve
+int turn_staerke = 1.5; //Größer -> kleinere Kurve
 int verzoergern = 1; //Größer --> mehr strecke in der Kurve zurückgelegt --> größere kurve
 int turns = 0;
 
