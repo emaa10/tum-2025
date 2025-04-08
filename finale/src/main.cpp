@@ -36,7 +36,7 @@ VL53L0X sensor1;
 #endif
 
 //Motor Bezeichnungen
-const uint8_t Motor_links = 2; 
+const uint8_t Motor_links = 6; 
 const uint8_t Motor_rechts = 1;
 
 const float DXL_PROTOCOL_VERSION = 1.0; //Wichtig, nicht 2.0
@@ -123,7 +123,7 @@ unsigned long getDistance() {
 }
 
 //Variablen zum Tunen
-int turn_staerke = 1.5; //Größer -> kleinere Kurve
+int turn_staerke = 1.46; //Größer -> kleinere Kurve
 int verzoergern = 1; //Größer --> mehr strecke in der Kurve zurückgelegt --> größere kurve
 int turns = 0;
 
